@@ -86,22 +86,22 @@ exports.updateUser = async (req, res) => {
       
       userModel.update(dataUser, { where: { id: idUser } })  
       .then(result => res.json({ success: 1, message: "Data has been updated" }))
-      .catch(error => res.json({ success: 0, message: error.message }))
+      .catch(err => res.json({ success: 0, message: err.message }))
   })
 }
 
 exports.deleteUser = async  (req, res) => { 
 
-  let params = { id_user: req.params.id }
-  const user= await userModel.findOne({ where:params })
+  let id_user = req.params.id
+  const user = await userModel.findOne({ where: { id: id_user } })
   const oldFotoUser = user.foto
   const pathFoto = path.join(__dirname, `./public/foto_user`, oldFotoUser)
 
   if (fs.existsSync(pathFoto)) {
-     fs.unlink(pathFoto, error => console.log(error))
+     fs.unlink(pathFoto, err => console.log(err))
   }
 
-  userModel.destroy({ where: params })
+  userModel.destroy({ where: { id: id_user } })
   .then(result => res.json({ success: 1, message: "Data has been deleted" }))
-  .catch(error => res.json({ success: 0, message: error.message }))
+  .catch(err => res.json({ success: 0, message: err.message }))
 }
