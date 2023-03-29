@@ -92,16 +92,16 @@ exports.updateUser = async (req, res) => {
 
 exports.deleteUser = async  (req, res) => { 
 
-  let id_user = req.params.id
-  const user = await userModel.findOne({ where: { id: id_user } })
-  const oldFotoUser = user.foto
-  const pathFoto = path.join(__dirname, `./public/foto_user`, oldFotoUser)
+  let params = { id_user: req.params.id }
 
-  if (fs.existsSync(pathFoto)) {
-     fs.unlink(pathFoto, err => console.log(err))
+  let delImg = await userModel.findOne({ where: params });
+  if (delImg) {
+    let delImgName = delImg.foto;
+    let loc = path.join(__dirname, '../public/foto_user/', delImgName);
+    fs.unlink(loc, (err) => console.log(err));
   }
 
-  userModel.destroy({ where: { id: id_user } })
-  .then(result => res.json({ success: 1, message: "Data has been deleted" }))
-  .catch(err => res.json({ success: 0, message: err.message }))
+  await userModel.destroy({ where: params })
+    .then(result => res.json({ success: 1, message: "Data has been deleted" }))
+    .catch(error => res.json({ success: 0, message: error.message }))
 }
