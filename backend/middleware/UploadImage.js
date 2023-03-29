@@ -1,28 +1,37 @@
-const multer = require('multer');
-const path = require('path');
+const multer = require(`multer`) 
+const path = require(`path`)  
 
 const storageUser = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./public/foto_user/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, path.parse(file.originalname).name + '-' + Date.now() + path.extname(file.originalname));
-  }
-});
+    destination: (req, file, cb) => { 
+        cb(null, `./public/foto_user`)
+    },
 
-const storageTypeRoom = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "./public/foto_tipe_kamar/");
-  },
-  filename: (req, file, cb) => {
-    cb(null, path.parse(file.originalname).name + '-' + Date.now() + path.extname(file.originalname));
-  }
-});
+    filename: (req, file, cb) => { 
+        cb(null, path.parse(file.originalname).name + '-' + Date.now() + path.extname(file.originalname))
+    }
+})
 
-const uploadUser = multer({ storage: storageUser });
-const uploadTypeRoom = multer({ storage: storageTypeRoom });
+const uploadUser = multer({
+    storage: storageUser,
+    fileFilter: (req, file, cb) => {
+        const acceptedType = [`image/jpg`, `image/jpeg`, `image/png`]
 
-module.exports = {
-  uploadUser,
-  uploadTypeRoom
-};
+        if (!acceptedType.includes(file.mimetype)) {
+            cb(null, false) 
+            return cb(`Invalid file type (${file.mimetype})`)
+
+        }
+
+        const fileSize = req.headers[`content-length`] 
+        const maxSize = (1 * 1024 * 1024) 
+
+        if(fileSize > maxSize){
+            cb(null, false) 
+            return cb(`File size is too large`) 
+        }
+
+        cb(null, true) 
+    }
+})
+ 
+module.exports = uploadUser
