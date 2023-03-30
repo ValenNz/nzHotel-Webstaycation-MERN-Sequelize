@@ -58,7 +58,7 @@ exports.updateUser = async (req, res) => {
       if (!req.file) return res.json({ message: "No file uploaded" })
 
 
-      let idUser = req.params.id
+      let params = { id_user: req.params.id }
 
       let dataUser = {
         nama_user: req.body.nama_user,
@@ -69,24 +69,19 @@ exports.updateUser = async (req, res) => {
       }
 
       if (req.file) {
-          const selectedUser = await userModel.findOne({
-              where: { id : id }
-          })
+        let oldImg = await userModel.findOne({ where: params });
+        let oldImgName = oldImg.foto;
 
-          const oldFotoUser = selectedMember.foto
+        let loc = path.join(__dirname, '../public/foto_user/', oldImgName);
+        fs.unlink(loc, (err) => console.log(err));
 
-          const pathFoto = path.join(__dirname, `../public/foto_user`, oldFotoUser)
-
-          if (fs.existsSync(pathFoto)) {
-              fs.unlink(pathFoto, err => console.log(err)) 
-          }
-
-          idUser.foto = req.file.filename    
+        let finalImageURL =req.file.filename;
+        dataUser.foto = finalImageURL;  
       }
       
-      userModel.update(dataUser, { where: { id: idUser } })  
+      await userModel.update(dataUser, { where: params })
       .then(result => res.json({ success: 1, message: "Data has been updated" }))
-      .catch(err => res.json({ success: 0, message: err.message }))
+      .catch(error => res.json({ success: 0, message: error.message }))
   })
 }
 
