@@ -23,21 +23,31 @@ exports.addUser = async (req, res) => {
         return res.json({ message: err })
     }
 
-    if (!req.file) return res.json({ message: "No file uploaded" })
-
-    let newUser = {
-      nama_user: req.body.nama_user,
-      slug: slugify(req.body.nama_user, slugOptions),
-      email: req.body.email,
-      password: md5(req.body.password),
-      role: req.body.role,
-      foto: req.file.filename,
+    if (!req.file) {
+      let newUser = {
+        nama_user: req.body.nama_user,
+        slug: slugify(req.body.nama_user, slugOptions),
+        email: req.body.email,
+        password: md5(req.body.password),
+        role: req.body.role,
+      }
+      await userModel.create(newUser)
+      .then(result => res.json({ success: 1, message: "Data has been inserted without foto", data: result }))
+      .catch(err => res.json({ success: 0, message: err.message }))
+    } else {
+      let newUser = {
+        nama_user: req.body.nama_user,
+        slug: slugify(req.body.nama_user, slugOptions),
+        email: req.body.email,
+        password: md5(req.body.password),
+        role: req.body.role,
+        foto: req.file.filename,
+      }
+      await userModel.create(newUser)
+      .then(result => res.json({ success: 1, message: "Data has been inserted", data: result }))
+      .catch(err => res.json({ success: 0, message: err.message }))
     }
-
-    /* Ekseskusi tambah data  */
-    await userModel.create(newUser)
-    .then(result => res.json({ success: 1, message: "Data has been inserted", data: result }))
-    .catch(err => res.json({ success: 0, message: err.message }))
+  
   })
 }
 
