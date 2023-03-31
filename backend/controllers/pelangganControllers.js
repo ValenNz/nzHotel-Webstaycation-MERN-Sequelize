@@ -58,6 +58,15 @@ exports.getAllPelanggan = async (req,res) => {
     .catch(err => res.json({ success: 0, message: err.message }))
 }
 
+/* READ DETAIL */
+exports.getPelanggan = async (req,res) => {
+  let params = { slug: req.params.slug };
+
+  await pelangganModel.findOne({ where: params })
+    .then(result => res.json({ data: result }))
+    .catch(error => res.json({ message: error.message }))
+}
+
 /* Update */
 exports.updatePelanggan = async (req, res) => { 
   uploadPelanggan(req, res, async err => {

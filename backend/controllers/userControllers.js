@@ -51,11 +51,21 @@ exports.addUser = async (req, res) => {
   })
 }
 
+
 /* READ */
 exports.getAllUser = async (req,res) => {
   await userModel.findAll()
     .then(result => res.json({ success: 1, data: result }))
     .catch(err => res.json({ success: 0, message: err.message }))
+}
+
+/* READ BY SLUG */
+exports.getUser = async (req,res) => {
+  let params = { slug: req.params.slug };
+
+  await userModel.findOne({ where: params })
+    .then(result => res.json({ success: 1, data: result }))
+    .catch(error => res.json({ success: 0, message: error.message }))
 }
 
 /* Update */

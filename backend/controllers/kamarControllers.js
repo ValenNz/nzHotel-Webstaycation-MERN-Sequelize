@@ -20,6 +20,16 @@ exports.getAllKamar = async (req,res) => {
     .catch(err => res.json({ success: 0, message: err.message }))
 }
 
+/* READ DETAIL */
+exports.getKamar = async (req,res) => {
+
+  let params = { id_kamar: req.params.id };
+  
+  await kamarModel.findOne({ where: params, include: ['tipe_kamar'] })
+    .then(result => res.json({ data: result }))
+    .catch(error => res.json({ message: error.message }))
+}
+
 /* Update */
 exports.updateKamar = async (req, res) => { 
       let params = { id_kamar: req.params.id }

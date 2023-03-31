@@ -7,6 +7,7 @@ const tipeKamarControllers = require('../controllers/tipeKamarControllers')
 
 app.post("/",tipeKamarControllers.addTipeKamar)
 app.get("/",tipeKamarControllers.getAllTipeKamar)
+app.get("/:slug",tipeKamarControllers.getTipeKamar)
 app.put("/:id",tipeKamarControllers.updateTipeKamar)
 app.delete("/:id",tipeKamarControllers.deleteTipeKamar)
 
