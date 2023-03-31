@@ -13,6 +13,14 @@ app.use(express.static(path.join(__dirname, 'public')));
 const userRoute = require('./routes/userRoutes');
 app.use('/api/v1/hotel/user', userRoute);
 
+const pelangganRoute = require('./routes/pelangganRoutes');
+app.use('/api/v1/hotel/pelanggan', pelangganRoute);
+
+const tipeKamarRoute = require('./routes/tipeKamarRoutes');
+app.use('/api/v1/hotel/tipekamar', tipeKamarRoute);
+
+const kamarRoute = require('./routes/kamarRoutes');
+app.use('/api/v1/hotel/kamar', kamarRoute);
 
 app.listen(PORT, () => {
     console.log(`😘💋 Server 🏨 ~ Nz Hotel ~ 🏨 started on http://localhost:${PORT} 💋😘`)
