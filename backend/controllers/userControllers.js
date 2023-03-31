@@ -51,7 +51,6 @@ exports.addUser = async (req, res) => {
   })
 }
 
-
 /* READ */
 exports.getAllUser = async (req,res) => {
   await userModel.findAll()
@@ -75,33 +74,41 @@ exports.updateUser = async (req, res) => {
           return res.json({ message: err })
       }
 
-      if (!req.file) return res.json({ message: "No file uploaded" })
-
-
       let params = { id_user: req.params.id }
 
-      let dataUser = {
-        nama_user: req.body.nama_user,
-        slug: slugify(req.body.nama_user, slugOptions),
-        email: req.body.email,
-        password: md5(req.body.password),
-        role: req.body.role
-      }
+      if (!req.file) {
+        let dataUser = {
+          nama_user: req.body.nama_user,
+          slug: slugify(req.body.nama_user, slugOptions),
+          email: req.body.email,
+          password: md5(req.body.password),
+          role: req.body.role
+        }
+        await userModel.update(dataUser, { where: params })
+          .then(result => res.json({ success: 1, message: "Data has been updated" }))
+          .catch(error => res.json({ success: 0, message: error.message }))
+      } else {
+        let dataUser = {
+          nama_user: req.body.nama_user,
+          slug: slugify(req.body.nama_user, slugOptions),
+          email: req.body.email,
+          password: md5(req.body.password),
+          role: req.body.role,
+        }
 
-      if (req.file) {
-        let oldImg = await userModel.findOne({ where: params });
-        let oldImgName = oldImg.foto;
+        // let oldImg = await userModel.findOne({ where: params });
+        // let oldImgName = oldImg.foto;
 
-        let loc = path.join(__dirname, '../public/foto_user/', oldImgName);
-        fs.unlink(loc, (err) => console.log(err));
+        // let loc = path.join(__dirname, '../public/foto_user/', oldImgName);
+        // fs.unlink(loc, (err) => console.log(err));
 
         let finalImageURL =req.file.filename;
         dataUser.foto = finalImageURL;  
+
+        await userModel.update(dataUser, { where: params })
+          .then(result => res.json({ success: 1, message: "Data has been updated" }))
+          .catch(error => res.json({ success: 0, message: error.message }))
       }
-      
-      await userModel.update(dataUser, { where: params })
-      .then(result => res.json({ success: 1, message: "Data has been updated" }))
-      .catch(error => res.json({ success: 0, message: error.message }))
   })
 }
 
