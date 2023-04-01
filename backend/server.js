@@ -22,6 +22,9 @@ app.use('/api/v1/hotel/tipekamar', tipeKamarRoute);
 const kamarRoute = require('./routes/kamarRoutes');
 app.use('/api/v1/hotel/kamar', kamarRoute);
 
+const pemesananRoute = require('./routes/pemesananRoutes');
+app.use('/api/v1/hotel/pemesanan', pemesananRoute);
+
 app.listen(PORT, () => {
     console.log(`😘💋 Server 🏨 ~ Nz Hotel ~ 🏨 started on http://localhost:${PORT} 💋😘`)
 });

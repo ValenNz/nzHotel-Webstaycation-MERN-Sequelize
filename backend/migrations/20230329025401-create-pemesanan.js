@@ -44,7 +44,7 @@ module.exports = {
       status_pemesanan: {
         type: Sequelize.ENUM('baru', 'check_in', 'check_out')
       },
-      id_useer: {
+      id_user: {
         type: Sequelize.INTEGER
       },
       createdAt: {
