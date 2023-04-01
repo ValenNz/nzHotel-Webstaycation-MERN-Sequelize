@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs')
 const slugify = require('slugify');
 
-
 const uploadPelanggan = require('../middleware/uploadPelanggan').single('foto')
 const pelangganModel = require('../models/index').pelanggan;
 
@@ -14,7 +13,7 @@ const slugOptions = {
     lower: true,
     strict: true,
     locale: 'id'
-  };
+};
 
   /* CREATE */
 exports.addPelanggan = async (req, res) => { 
@@ -74,20 +73,30 @@ exports.updatePelanggan = async (req, res) => {
           return res.json({ message: err })
       }
 
-      if (!req.file) return res.json({ message: "No file uploaded" })
-
-
       let params = { id_pelanggan: req.params.id }
 
-      let dataPelanggan = {
-        nama: req.body.nama,
-        slug: slugify(req.body.nama, slugOptions),
-        email: req.body.email,
-        password: md5(req.body.password),
-        role: req.body.role
-      }
+      if (!req.file) {
+        let dataPelanggan = {
+          nama: req.body.nama,
+          slug: slugify(req.body.nama, slugOptions),
+          email: req.body.email,
+          password: md5(req.body.password),
+          role: req.body.role
+        }
+         
+        await pelangganModel.update(dataPelanggan, { where: params })
+          .then(result => res.json({ success: 1, message: "Data has been updated" }))
+          .catch(error => res.json({ success: 0, message: error.message }))
 
-      if (req.file) {
+      } if (req.file) {
+        let dataPelanggan = {
+          nama: req.body.nama,
+          slug: slugify(req.body.nama, slugOptions),
+          email: req.body.email,
+          password: md5(req.body.password),
+          role: req.body.role
+        }
+
         let oldImg = await pelangganModel.findOne({ where: params });
         let oldImgName = oldImg.foto;
 
@@ -96,11 +105,28 @@ exports.updatePelanggan = async (req, res) => {
 
         let finalImageURL =req.file.filename;
         dataPelanggan.foto = finalImageURL;  
+
+        await pelangganModel.update(dataPelanggan, { where: params })
+          .then(result => res.json({ success: 1, message: "Data has been updated" }))
+          .catch(error => res.json({ success: 0, message: error.message }))
+  
+        
+      } else {
+        let dataPelanggan = {
+          nama: req.body.nama,
+          slug: slugify(req.body.nama, slugOptions),
+          email: req.body.email,
+          password: md5(req.body.password),
+          role: req.body.role
+        }
+
+        let finalImageURL =req.file.filename;
+        dataUser.foto = finalImageURL;  
+
+        await pelangganModel.update(dataPelanggan, { where: params })
+          .then(result => res.json({ success: 1, message: "Data has been updated" }))
+          .catch(error => res.json({ success: 0, message: error.message }))
       }
-      
-      await pelangganModel.update(dataPelanggan, { where: params })
-      .then(result => res.json({ success: 1, message: "Data has been updated" }))
-      .catch(error => res.json({ success: 0, message: error.message }))
   })
 }
 
@@ -108,15 +134,20 @@ exports.deletePelanggan = async  (req, res) => {
 
   let params = { id_pelanggan: req.params.id }
 
-  
   let delImg = await pelangganModel.findOne({ where: params });
-  if (delImg) {
+
+  if (!delImg) {
+    await pelangganModel.destroy({ where: params })
+      .then(result => res.json({ success: 1, message: "Data has been deleted" }))
+      .catch(error => res.json({ success: 0, message: error.message }))
+
+  } if (delImg) {
     let delImgName = delImg.foto;
     let loc = path.join(__dirname, '../public/foto_pelanggan/', delImgName);
     fs.unlink(loc, (err) => console.log(err));
-  }
 
-  await pelangganModel.destroy({ where: params })
-    .then(result => res.json({ success: 1, message: "Data has been deleted" }))
-    .catch(error => res.json({ success: 0, message: error.message }))
+    await pelangganModel.destroy({ where: params })
+      .then(result => res.json({ success: 1, message: "Data has been deleted" }))
+      .catch(error => res.json({ success: 0, message: error.message }))
+  }
 }

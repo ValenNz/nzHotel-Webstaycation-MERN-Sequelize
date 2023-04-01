@@ -4,7 +4,6 @@ const path = require('path');
 const fs = require('fs')
 const slugify = require('slugify');
 
-
 const uploadUser = require('../middleware/uploadUser').single('foto')
 const userModel = require('../models/index').user;
 
@@ -14,7 +13,7 @@ const slugOptions = {
     lower: true,
     strict: true,
     locale: 'id'
-  };
+};
 
   /* CREATE */
 exports.addUser = async (req, res) => { 
@@ -53,8 +52,11 @@ exports.addUser = async (req, res) => {
 
 /* READ */
 exports.getAllUser = async (req,res) => {
+  
+  const totalHari = Math.round((100000 - 1) / (3600 * 24))
+
   await userModel.findAll()
-    .then(result => res.json({ success: 1, data: result }))
+    .then(result => res.json({ success: 1, totalHari, data: result }))
     .catch(err => res.json({ success: 0, message: err.message }))
 }
 
@@ -87,6 +89,28 @@ exports.updateUser = async (req, res) => {
         await userModel.update(dataUser, { where: params })
           .then(result => res.json({ success: 1, message: "Data has been updated" }))
           .catch(error => res.json({ success: 0, message: error.message }))
+          
+      } if(req.file){
+          let dataUser = {
+            nama_user: req.body.nama_user,
+            slug: slugify(req.body.nama_user, slugOptions),
+            email: req.body.email,
+            password: md5(req.body.password),
+            role: req.body.role,
+          }
+
+          let oldImg = await userModel.findOne({ where: params });
+          let oldImgName = oldImg.foto;
+
+          let loc = path.join(__dirname, '../public/foto_user/', oldImgName);
+          fs.unlink(loc, (err) => console.log(err));
+
+          let finalImageURL =req.file.filename;
+          dataUser.foto = finalImageURL;  
+
+          await userModel.update(dataUser, { where: params })
+            .then(result => res.json({ success: 1, message: "Data has been updated" }))
+            .catch(error => res.json({ success: 0, message: error.message }))
       } else {
         let dataUser = {
           nama_user: req.body.nama_user,
@@ -95,12 +119,6 @@ exports.updateUser = async (req, res) => {
           password: md5(req.body.password),
           role: req.body.role,
         }
-
-        // let oldImg = await userModel.findOne({ where: params });
-        // let oldImgName = oldImg.foto;
-
-        // let loc = path.join(__dirname, '../public/foto_user/', oldImgName);
-        // fs.unlink(loc, (err) => console.log(err));
 
         let finalImageURL =req.file.filename;
         dataUser.foto = finalImageURL;  
@@ -115,16 +133,21 @@ exports.updateUser = async (req, res) => {
 exports.deleteUser = async  (req, res) => { 
 
   let params = { id_user: req.params.id }
-
-  
+    
   let delImg = await userModel.findOne({ where: params });
-  if (delImg) {
+
+  if (!delImg) {
+    await userModel.destroy({ where: params })
+    .then(result => res.json({ success: 1, message: "Data has been deleted" }))
+    .catch(error => res.json({ success: 0, message: error.message }))
+
+  } if (delImg) {
     let delImgName = delImg.foto;
     let loc = path.join(__dirname, '../public/foto_user/', delImgName);
     fs.unlink(loc, (err) => console.log(err));
-  }
 
-  await userModel.destroy({ where: params })
+    await userModel.destroy({ where: params })
     .then(result => res.json({ success: 1, message: "Data has been deleted" }))
-    .catch(error => res.json({ success: 0, message: error.message }))
+    .catch(error => res.json({ success: 0, message: error.message })) 
+  }
 }
