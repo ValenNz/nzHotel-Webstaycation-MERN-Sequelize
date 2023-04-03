@@ -136,7 +136,9 @@ exports.deleteUser = async  (req, res) => {
     
   let delImg = await userModel.findOne({ where: params });
 
-  if (!delImg) {
+  let img = await  userModel.findOne({ where: params });
+
+  if (img ) {
     await userModel.destroy({ where: params })
     .then(result => res.json({ success: 1, message: "Data has been deleted" }))
     .catch(error => res.json({ success: 0, message: error.message }))
